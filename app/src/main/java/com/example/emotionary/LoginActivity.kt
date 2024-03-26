@@ -1,9 +1,15 @@
 package com.example.emotionary
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,10 +25,46 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.emotionary.ui.theme.EmotionaryTheme
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.user.UserApiClient
+
 
 class LoginActivity : ComponentActivity() {
+    private val TAG = "LoginActivity"
+
+    // ActivityResultLauncher를 정의합니다. 카카오 로그인 결과를 처리합니다.
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Kakao SDK 초기화
+        KakaoSdk.init(this, "93033e81e2b89a27b0afb142f9637e6c")
+
+        // ActivityResultLauncher 초기화를 onCreate 메서드 안에서 진행합니다.
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // 로그인 성공 후 사용자 정보 요청
+                UserApiClient.instance.me { user, error ->
+                    if (error != null) {
+                        // 사용자 정보 요청 실패 처리
+                        Log.e(TAG, "사용자 정보 요청 실패", error)
+                    } else if (user != null) {
+                        // 사용자 정보 요청 성공 처리
+                        Log.i(TAG, "사용자 정보 요청 성공: ${user.id}")
+
+                        // 예: 메인 액티비티로 이동하면서 사용자 이름 전달
+                        val intent = Intent(this, MainActivity::class.java).apply {
+                            putExtra("userName", user.kakaoAccount?.profile?.nickname)
+                        }
+                        startActivity(intent)
+                        finish() // 현재 액티비티 종료
+                    }
+                }
+            }
+        }
+
         setContent {
             EmotionaryTheme {
                 // A surface container using the 'background' color from the theme
@@ -30,15 +72,42 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreen()
+                    LoginScreen(::performLogin)
                 }
             }
         }
     }
+
+    private fun performLogin() {
+        // 카카오톡 설치 확인
+        if (UserApiClient.instance.isKakaoTalkLoginAvailable(this)) {
+            // 카카오톡 로그인
+            UserApiClient.instance.loginWithKakaoTalk(this) { token, error ->
+                handleLoginResult(token, error)
+            }
+        } else {
+            UserApiClient.instance.loginWithKakaoAccount(this) { token, error ->
+                handleLoginResult(token, error)
+            }
+        }
+    }
+
+    private fun handleLoginResult(token: OAuthToken?, error: Throwable?) {
+        if (error != null) {
+            Log.e(TAG, "로그인 실패 $error")
+        } else if (token != null) {
+            Log.e(TAG, "로그인 성공 ${token.accessToken}")
+            // 로그인 성공 후 Activity 이동
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
 }
 
+
 @Composable
-fun LoginScreen(){
+fun LoginScreen(loginAction: ()->Unit){
     Box(modifier = Modifier.fillMaxSize()){
         Image(
             painter = painterResource(id = R.drawable.login_background),
@@ -69,7 +138,9 @@ fun LoginScreen(){
         Image(
             painter = painterResource(id = R.drawable.kakaotalklogo),
             contentDescription = "카카오톡 로그인",
-            modifier = Modifier.size(60.dp)
+            modifier = Modifier
+                .size(60.dp)
+                .clickable(onClick = loginAction) //클릭 이벤트
         )
     }
 }
