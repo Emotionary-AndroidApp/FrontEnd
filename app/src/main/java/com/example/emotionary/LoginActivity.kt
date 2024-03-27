@@ -1,13 +1,11 @@
 package com.example.emotionary
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -42,29 +40,6 @@ class LoginActivity : ComponentActivity() {
         // Kakao SDK 초기화
         KakaoSdk.init(this, "93033e81e2b89a27b0afb142f9637e6c")
 
-        // ActivityResultLauncher 초기화를 onCreate 메서드 안에서 진행합니다.
-        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // 로그인 성공 후 사용자 정보 요청
-                UserApiClient.instance.me { user, error ->
-                    if (error != null) {
-                        // 사용자 정보 요청 실패 처리
-                        Log.e(TAG, "사용자 정보 요청 실패", error)
-                    } else if (user != null) {
-                        // 사용자 정보 요청 성공 처리
-                        Log.i(TAG, "사용자 정보 요청 성공: ${user.id}")
-
-                        // 예: 메인 액티비티로 이동하면서 사용자 이름 전달
-                        val intent = Intent(this, MainActivity::class.java).apply {
-                            putExtra("userName", user.kakaoAccount?.profile?.nickname)
-                        }
-                        startActivity(intent)
-                        finish() // 현재 액티비티 종료
-                    }
-                }
-            }
-        }
-
         setContent {
             EmotionaryTheme {
                 // A surface container using the 'background' color from the theme
@@ -97,10 +72,24 @@ class LoginActivity : ComponentActivity() {
             Log.e(TAG, "로그인 실패 $error")
         } else if (token != null) {
             Log.e(TAG, "로그인 성공 ${token.accessToken}")
-            // 로그인 성공 후 Activity 이동
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+
+            UserApiClient.instance.me { user, error ->
+                if (error != null) {
+                    // 사용자 정보 요청 실패 처리
+                    Log.e(TAG, "사용자 정보 요청 실패", error)
+                } else if (user != null) {
+                    // 사용자 정보 요청 성공 처리
+                    Log.i(TAG, "사용자 정보 요청 성공: ${user.kakaoAccount?.profile?.profileImageUrl}")
+
+                    // 메인 액티비티로 이동하면서 사용자 이름 전달
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
+                        putExtra("userName", user.kakaoAccount?.profile?.nickname)
+                        putExtra("userProfile",user.kakaoAccount?.profile?.profileImageUrl)
+                    }
+                    startActivity(intent)
+                    finish() // 현재 액티비티 종료
+                }
+            }
         }
     }
 }
@@ -113,7 +102,7 @@ fun LoginScreen(loginAction: ()->Unit){
             painter = painterResource(id = R.drawable.login_background),
             contentDescription = "로그인 배경화면", // 접근성을 위한 설명
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop // 이미지가 Box를 꽉 채우도록 조정
+            contentScale = ContentScale.FillBounds // 이미지가 비율을 무시하고 Box를 꽉 채우도록 조정
         )
     }
 

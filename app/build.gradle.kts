@@ -69,4 +69,7 @@ dependencies {
 
     //Kakao Login
     implementation ("com.kakao.sdk:v2-user:2.10.0")
+
+    // url 사진 업로드용
+    implementation("io.coil-kt:coil-compose:1.3.2")
 }
