@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,11 +26,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -69,10 +73,14 @@ fun Calendar(month: Int, year: Int) {
     val firstDayOfMonth = LocalDate.of(year, month, 1).dayOfWeek.value
     val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
+    // 선택된 날짜의 인덱스를 추적하는 상태. 초기값은 -1로 설정하여 어떤 날짜도 선택되지 않은 상태를 나타냄
+    var selectedDayIndex by remember { mutableStateOf(-1) }
+
     Column {
         // 요일 헤더
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween // 요일 간격 유지
         ) {
@@ -89,7 +97,7 @@ fun Calendar(month: Int, year: Int) {
             columns = GridCells.Fixed(7),
             modifier = Modifier
                 .padding(start = 5.dp, end = 5.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp), // 칸 간 수직 간격
+            verticalArrangement = Arrangement.spacedBy(12.dp), // 칸 간 수직 간격
             horizontalArrangement = Arrangement.SpaceBetween // 칸 간 수평 간격 조정
         ) {
             items(firstDayOfMonth - 1) {
@@ -100,7 +108,9 @@ fun Calendar(month: Int, year: Int) {
                         .background(Color.Transparent)
                 )
             }
-            items(daysInMonth) { day ->
+            items(daysInMonth) { index ->
+                val day = index + 1
+                val isSelected = index == selectedDayIndex
                 // 실제 날짜
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -108,22 +118,33 @@ fun Calendar(month: Int, year: Int) {
                     Box(
                         modifier = Modifier
                             .size(40.dp) // 이모티콘을 위한 크기 조정
-                            .background(Color(0xFFD9D9D9), shape = RoundedCornerShape(10.dp)), // 색상 및 둥근 모서리 적용
+                            .shadow(
+                                elevation = 8.dp,
+                                shape = RoundedCornerShape(10.dp),
+                                clip = true
+                            )
+                            .border(1.dp, if (isSelected) Color.Black else Color.Gray, RoundedCornerShape(10.dp))
+                            .clickable {
+                                selectedDayIndex = index // 선택한 날짜의 인덱스를 업데이트
+                            }
+                            .background(if (isSelected) Color(0xFFF5F5F5) else Color(0xFFD9D9D9), shape = RoundedCornerShape(10.dp)), // 색상 및 둥근 모서리 적용
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "🗓") // 예시 이모티콘
                     }
+                    Spacer(modifier = Modifier.height(7.dp))
                     // 날짜 표시
                     Text(
-                        text = "${day + 1}",
-                        fontFamily = FontFamily(Font(R.font.garamflower))
+                        text = "$day",
+                        fontFamily = FontFamily(Font(R.font.garamflower)),
+                        fontWeight = FontWeight.Bold,
+                        color = if (isSelected) Color.Black else Color.Gray
                     )
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun MainScreen(userName: String?, userProfile: String?){
@@ -164,8 +185,9 @@ fun MainScreen(userName: String?, userProfile: String?){
                 painter = rememberImagePainter("$userProfile"),
                 contentDescription ="사용자 프로필 사진",
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape),
+                    .size(110.dp)
+                    .clip(CircleShape)
+                    .border(6.dp, Color.White, CircleShape),
                 contentScale = ContentScale.FillBounds
             )
 
@@ -222,7 +244,7 @@ fun MainScreen(userName: String?, userProfile: String?){
 
         Column {
             Spacer(modifier = Modifier.height(30.dp))
-            Calendar(month = calendarState.value.monthValue, year = 2024)
+            Calendar(month = calendarState.value.monthValue, year = calendarState.value.year)
         }
     }
 
