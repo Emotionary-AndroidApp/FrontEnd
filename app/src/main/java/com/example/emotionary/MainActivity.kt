@@ -1,5 +1,6 @@
 package com.example.emotionary
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(userName,userProfile)
+                    HiddenPageBtn()
                 }
             }
         }
@@ -154,10 +157,51 @@ fun Calendar(month: Int, year: Int) {
 }
 
 @Composable
+fun HiddenPageBtn() {
+    val context = LocalContext.current // 현재 컨텍스트 가져옴
+
+    Column (modifier = Modifier.padding(30.dp)){ // 히든페이지로 넘어가는 버튼
+        Row {
+            Spacer(modifier = Modifier.width(310.dp))
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = CircleShape,
+                        clip = false
+                    )
+                    .clickable {
+                        val intent = Intent(context, HiddenActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                    .clip(CircleShape)
+                    .background(
+                        Color.White
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "🏠",
+                    fontSize = 20.sp)
+            }
+        }
+    }
+}
+
+@Composable
 fun MainScreen(userName: String?, userProfile: String?){
     //현재 날짜 상태 관리
     val calendarState = remember{
         mutableStateOf(LocalDate.now())
+    }
+
+    Box(modifier = Modifier.fillMaxSize()){
+        Image(
+            painter = painterResource(id = R.drawable.home_background),
+            contentDescription = "홈 배경화면", // 접근성을 위한 설명
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
     }
 
     Column {
@@ -184,15 +228,6 @@ fun MainScreen(userName: String?, userProfile: String?){
                 contentScale = ContentScale.Fit
             )
         }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()){
-        Image(
-            painter = painterResource(id = R.drawable.home_background),
-            contentDescription = "홈 배경화면", // 접근성을 위한 설명
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillBounds
-        )
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
