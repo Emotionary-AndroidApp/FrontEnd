@@ -123,11 +123,18 @@ fun Calendar(month: Int, year: Int) {
                                 shape = RoundedCornerShape(10.dp),
                                 clip = true
                             )
-                            .border(1.dp, if (isSelected) Color.Black else Color.Gray, RoundedCornerShape(10.dp))
+                            .border(
+                                1.dp,
+                                if (isSelected) Color.Black else Color.Gray,
+                                RoundedCornerShape(10.dp)
+                            )
                             .clickable {
                                 selectedDayIndex = index // 선택한 날짜의 인덱스를 업데이트
                             }
-                            .background(if (isSelected) Color(0xFFF5F5F5) else Color(0xFFD9D9D9), shape = RoundedCornerShape(10.dp)), // 색상 및 둥근 모서리 적용
+                            .background(
+                                if (isSelected) Color(0xFFF5F5F5) else Color(0xFFD9D9D9),
+                                shape = RoundedCornerShape(10.dp)
+                            ), // 색상 및 둥근 모서리 적용
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "🗓") // 예시 이모티콘
@@ -156,11 +163,24 @@ fun MainScreen(userName: String?, userProfile: String?){
     Column {
         Spacer(modifier = Modifier.height(55.dp))
         Row {
-            Spacer(modifier = Modifier.width(200.dp))
+            Spacer(modifier = Modifier.width(210.dp))
             Image(
                 painter = painterResource(id = R.drawable.blue_underline),
-                contentDescription = null,
+                contentDescription = "닉네임 밑줄",
                 modifier = Modifier.size(60.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+
+    Column {
+        Spacer(modifier = Modifier.height(160.dp))
+        Row {
+            Spacer(modifier = Modifier.width(130.dp))
+            Image(
+                painter = painterResource(id = R.drawable.yellow_underline),
+                contentDescription = "디데이 밑줄",
+                modifier = Modifier.size(80.dp),
                 contentScale = ContentScale.Fit
             )
         }
@@ -242,7 +262,32 @@ fun MainScreen(userName: String?, userProfile: String?){
             }
         }
 
-        Column {
+        Column { // 목표진행도
+            Spacer(modifier = Modifier.height(20.dp))
+            Row {
+                Spacer(modifier = Modifier.width(30.dp))
+                Text(text = "목표진행도",
+                    fontFamily = FontFamily(
+                        Font(R.font.garamflower)
+                    ),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Column {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(text="D - 9",
+                        fontFamily = FontFamily(
+                            Font(R.font.garamflower)
+                        ),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+        }
+
+        Column { // 캘린더
             Spacer(modifier = Modifier.height(30.dp))
             Calendar(month = calendarState.value.monthValue, year = calendarState.value.year)
         }
