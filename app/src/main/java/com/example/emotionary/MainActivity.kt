@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -189,143 +190,148 @@ fun HiddenPageBtn() {
 }
 
 @Composable
-fun MainScreen(userName: String?, userProfile: String?){
-    //현재 날짜 상태 관리
-    val calendarState = remember{
+fun MainScreen(userName: String?, userProfile: String?) {
+    // 현재 날짜 상태 관리
+    val calendarState = remember {
         mutableStateOf(LocalDate.now())
     }
+    val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.home_background),
             contentDescription = "홈 배경화면", // 접근성을 위한 설명
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds
         )
-    }
 
-    Column {
-        Spacer(modifier = Modifier.height(55.dp))
-        Row {
-            Spacer(modifier = Modifier.width(210.dp))
-            Image(
-                painter = painterResource(id = R.drawable.blue_underline),
-                contentDescription = "닉네임 밑줄",
-                modifier = Modifier.size(60.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-    }
-
-    Column {
-        Spacer(modifier = Modifier.height(160.dp))
-        Row {
-            Spacer(modifier = Modifier.width(130.dp))
-            Image(
-                painter = painterResource(id = R.drawable.yellow_underline),
-                contentDescription = "디데이 밑줄",
-                modifier = Modifier.size(80.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(50.dp))
-
-        Row (modifier = Modifier.fillMaxWidth()){
-            Spacer(modifier = Modifier.width(50.dp))
-
-            Image(
-                painter = rememberImagePainter("$userProfile"),
-                contentDescription ="사용자 프로필 사진",
-                modifier = Modifier
-                    .size(110.dp)
-                    .clip(CircleShape)
-                    .border(6.dp, Color.White, CircleShape),
-                contentScale = ContentScale.FillBounds
-            )
-
-            Spacer(modifier = Modifier.width(50.dp))
-
-            Column{
-                Spacer(modifier = Modifier.height(12.dp))
-                Row{
-                    Text(text = "$userName",
-                        fontSize = 28.sp,
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        ),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(text = "의",
-                        fontSize = 28.sp,
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        )
-                    )
-                }
-                Row {
-                    Text(text = "<",
-                        modifier = Modifier.clickable{ // 누르면 이전 달로 이동
-                            calendarState.value = calendarState.value.minusMonths(1)
-                        },
-                        fontSize = 35.sp,
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(25.dp))
-                    Text(text = "${calendarState.value.monthValue}월 일기",
-                        fontSize = 35.sp,
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(25.dp))
-                    Text(text = ">",
-                        modifier = Modifier.clickable{ // 누르면 다음 달로 이동
-                            calendarState.value = calendarState.value.plusMonths(1)
-                        },
-                        fontSize = 35.sp,
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        )
-                    )
-                }
-            }
-        }
-
-        Column { // 목표진행도
-            Spacer(modifier = Modifier.height(20.dp))
-            Row {
-                Spacer(modifier = Modifier.width(30.dp))
-                Text(text = "목표진행도",
-                    fontFamily = FontFamily(
-                        Font(R.font.garamflower)
-                    ),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.ExtraBold
+        Column {
+            Spacer(modifier = Modifier.height(50.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.width(50.dp))
+                Image(
+                    painter = rememberImagePainter("$userProfile"),
+                    contentDescription = "사용자 프로필 사진",
+                    modifier = Modifier
+                        .size(110.dp)
+                        .clip(CircleShape)
+                        .border(6.dp, Color.White, CircleShape),
+                    contentScale = ContentScale.FillBounds
                 )
-                Spacer(modifier = Modifier.width(20.dp))
-                Column {
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Text(text="D - 9",
-                        fontFamily = FontFamily(
-                            Font(R.font.garamflower)
-                        ),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black
-                    )
+
+                Spacer(modifier = Modifier.width(50.dp))
+
+                Column(modifier = Modifier.height(100.dp)) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(modifier = Modifier.width(100.dp)) {
+                        Box(
+                            modifier = Modifier.weight(1f), // Box가 사용 가능한 공간을 채우도록 설정
+                            contentAlignment = Alignment.Center // Box 내부의 컴포넌트를 중앙에 배치
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.blue_underline),
+                                contentDescription = "이름 밑줄",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.Center)
+                                    .size(20.dp)
+                            )
+                            Text(
+                                text = "$userName",
+                                fontSize = 28.sp,
+                                fontFamily = FontFamily(Font(R.font.garamflower)),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "의",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily(Font(R.font.garamflower))
+                        )
+                    }
+                    Row {
+                        Text(
+                            text = "<",
+                            modifier = Modifier.clickable { // 누르면 이전 달로 이동
+                                calendarState.value = calendarState.value.minusMonths(1)
+                            },
+                            fontSize = 35.sp,
+                            fontFamily = FontFamily(Font(R.font.garamflower))
+                        )
+                        Spacer(modifier = Modifier.width(25.dp))
+                        Text(
+                            text = "${calendarState.value.monthValue}월 일기",
+                            fontSize = 35.sp,
+                            fontFamily = FontFamily(Font(R.font.garamflower))
+                        )
+                        Spacer(modifier = Modifier.width(25.dp))
+                        Text(
+                            text = ">",
+                            modifier = Modifier.clickable { // 누르면 다음 달로 이동
+                                calendarState.value = calendarState.value.plusMonths(1)
+                            },
+                            fontSize = 35.sp,
+                            fontFamily = FontFamily(Font(R.font.garamflower))
+                        )
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .height(80.dp)
+                    .padding(20.dp)
+            ) { // 목표진행도
+                Row(Modifier.width(200.dp)) {
+                    Spacer(modifier = Modifier.width(30.dp))
+                        Text(
+                            text = "목표진행도",
+                            fontFamily = FontFamily(
+                                Font(R.font.garamflower)
+                            ),
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier.width(100.dp),
+                            contentAlignment = Alignment.Center // Box 내부의 컴포넌트를 중앙에 배치
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.yellow_underline),
+                                contentDescription = "디데이 밑줄",
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(40.dp)
+                            )
+                            Text(
+                                text = "D - 9",
+                                fontFamily = FontFamily(
+                                    Font(R.font.garamflower)
+                                ),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                }
+            }
+
+            Box(modifier = Modifier // 캘린더 + 다이어리
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(16.dp)) {
+                Column(modifier = Modifier
+                    .fillMaxSize()) { // 스크롤 효과 적용 - 캘린더와 다이어리 column이 scroll되도록
+                    Spacer(modifier = Modifier.height(35.dp))
+                    Calendar(month = calendarState.value.monthValue, year = calendarState.value.year) // 캘린더
+                    // 해당 날짜 다이어리 보여주는 함수 작성 예정
                 }
             }
         }
-
-        Column { // 캘린더
-            Spacer(modifier = Modifier.height(30.dp))
-            Calendar(month = calendarState.value.monthValue, year = calendarState.value.year)
-        }
     }
-
 }
+
