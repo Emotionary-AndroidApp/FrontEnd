@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -79,6 +80,38 @@ fun Calendar(month: Int, year: Int) {
 
     // 선택된 날짜의 인덱스를 추적하는 상태. 초기값은 -1로 설정하여 어떤 날짜도 선택되지 않은 상태를 나타냄
     var selectedDayIndex by remember { mutableStateOf(-1) }
+    var showDialog by remember { mutableStateOf(false) } // 팝업 표시 여부
+    var selectedDay by remember { mutableStateOf(1) } // 선택된 날짜
+    val context = LocalContext.current // 현재 context
+
+    if(showDialog){
+        AlertDialog(
+            onDismissRequest = { showDialog = false},
+            title = { Text(text = "$selectedDay 일 일기",
+                fontFamily = FontFamily(Font(R.font.garamflower)))},
+            text = {
+                   Text(text = "일기 세부 내용 작성",
+                       fontFamily = FontFamily(Font(R.font.garamflower)),
+                       fontWeight = FontWeight.Bold
+                   )
+            },
+            confirmButton = { Button(onClick = {showDialog = false}) {
+                Text(text = "X",
+                    fontFamily = FontFamily(Font(R.font.garamflower))
+                ) }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showDialog = false
+                    val intent = Intent(context, DiaryActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                    Text("🖋️")
+                }
+            },
+            containerColor = Color.White
+        )
+    }
 
     Column {
         // 요일 헤더
@@ -134,6 +167,8 @@ fun Calendar(month: Int, year: Int) {
                             )
                             .clickable {
                                 selectedDayIndex = index // 선택한 날짜의 인덱스를 업데이트
+                                selectedDay = day
+                                showDialog = true // 팝업
                             }
                             .background(
                                 if (isSelected) Color(0xFFF5F5F5) else Color(0xFFD9D9D9),
@@ -195,7 +230,6 @@ fun MainScreen(userName: String?, userProfile: String?) {
     val calendarState = remember {
         mutableStateOf(LocalDate.now())
     }
-    val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -279,7 +313,8 @@ fun MainScreen(userName: String?, userProfile: String?) {
                 }
             }
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .height(80.dp)
                     .padding(20.dp)
             ) { // 목표진행도
