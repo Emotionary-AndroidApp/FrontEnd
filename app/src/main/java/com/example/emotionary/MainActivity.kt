@@ -190,7 +190,7 @@ fun Calendar(month: Int, year: Int) {
             }
         }
     }
-}
+} // 캘린더 함수
 
 @Composable
 fun HiddenPageBtn() {
@@ -221,6 +221,33 @@ fun HiddenPageBtn() {
                     fontSize = 20.sp)
             }
         }
+    }
+} // 히든 페이지로 넘어가는 버튼 함수
+
+@Composable
+fun ProgessBar() {
+    val progress = remember { mutableStateOf(0.7f) } // 목표 달성 바의 진행 상태를 나타내는 변수 -> 예시로 0.7(70%)
+
+    // 배경 컨테이너
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(25.dp)
+            .padding(start = 10.dp, end = 10.dp, top = 10.dp)
+            .background(
+                color = Color(0xFFBECEBE),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+            ) // 배경 색상과 둥근 모서리 설정
+    ) {
+        // 실제 진행 상태를 나타내는 바
+        Box(modifier = Modifier
+            .fillMaxWidth(progress.value)
+            .height(25.dp)
+            .background(
+                color = Color(0xFFE7F8E7),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+            )
+        )
     }
 }
 
@@ -312,14 +339,18 @@ fun MainScreen(userName: String?, userProfile: String?) {
                     }
                 }
             }
-            Box(
+
+            Box( // 목표진행도
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
-                    .padding(20.dp)
-            ) { // 목표진행도
-                Row(Modifier.width(200.dp)) {
-                    Spacer(modifier = Modifier.width(30.dp))
+                    .height(150.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp)
+            ) {
+                Column (
+                    modifier=Modifier.fillMaxSize()
+                ){
+                    Row(Modifier.width(200.dp)) {
+                        Spacer(modifier = Modifier.width(30.dp))
                         Text(
                             text = "목표진행도",
                             fontFamily = FontFamily(
@@ -328,29 +359,33 @@ fun MainScreen(userName: String?, userProfile: String?) {
                             fontSize = 30.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Column {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Box(
-                            modifier = Modifier.width(100.dp),
-                            contentAlignment = Alignment.Center // Box 내부의 컴포넌트를 중앙에 배치
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.yellow_underline),
-                                contentDescription = "디데이 밑줄",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(40.dp)
-                            )
-                            Text(
-                                text = "D - 9",
-                                fontFamily = FontFamily(
-                                    Font(R.font.garamflower)
-                                ),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Black
-                            )
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Column {
+                            Box(
+                                modifier = Modifier.width(100.dp),
+                                contentAlignment = Alignment.Center // Box 내부의 컴포넌트를 중앙에 배치
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.yellow_underline),
+                                    contentDescription = "디데이 밑줄",
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .size(40.dp)
+                                )
+                                Text(
+                                    text = "D - 9",
+                                    fontFamily = FontFamily(
+                                        Font(R.font.garamflower)
+                                    ),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
                         }
+                    }
+                    Column(modifier = Modifier.padding(top = 25.dp)) {
+                        // 목표 달성 바
+                        ProgessBar()
                     }
                 }
             }
@@ -358,10 +393,9 @@ fun MainScreen(userName: String?, userProfile: String?) {
             Box(modifier = Modifier // 캘린더 + 다이어리
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(16.dp)) {
+                .padding(start = 15.dp, end = 15.dp)) {
                 Column(modifier = Modifier
                     .fillMaxSize()) { // 스크롤 효과 적용 - 캘린더와 다이어리 column이 scroll되도록
-                    Spacer(modifier = Modifier.height(35.dp))
                     Calendar(month = calendarState.value.monthValue, year = calendarState.value.year) // 캘린더
                     // 해당 날짜 다이어리 보여주는 함수 작성 예정
                 }
