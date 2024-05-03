@@ -1,5 +1,6 @@
 package com.example.emotionary
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -81,6 +83,7 @@ class LoginActivity : ComponentActivity() {
                     // 사용자 정보 요청 성공 처리
                     Log.i(TAG, "사용자 정보 요청 성공: ${user.kakaoAccount?.profile?.profileImageUrl}")
 
+                    saveLoginInfo(user.kakaoAccount?.profile?.nickname, user.kakaoAccount?.profile?.profileImageUrl)
                     // 메인 액티비티로 이동하면서 사용자 이름 전달
                     val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
                         putExtra("userName", user.kakaoAccount?.profile?.nickname)
@@ -90,6 +93,15 @@ class LoginActivity : ComponentActivity() {
                     finish() // 현재 액티비티 종료
                 }
             }
+        }
+    }
+
+    private fun saveLoginInfo(nickname: String?, profileImageUrl: String?){
+        val sharedPref = getSharedPreferences("LoginInfo",Context.MODE_PRIVATE)
+        with(sharedPref.edit()){
+            putString("nickname", nickname)
+            putString("profileImageUrl",profileImageUrl)
+            apply()
         }
     }
 }
@@ -107,10 +119,10 @@ fun LoginScreen(loginAction: ()->Unit){
     }
 
     Column(
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally, // Column 내부 요소들을 가로 방향으로 중앙에 배치
         modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.size(240.dp)) // 상단 이미지와의 간격 조정
 
         Image(
             painter = painterResource(id = R.drawable.emotionarytitle),

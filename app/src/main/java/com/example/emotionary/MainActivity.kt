@@ -1,5 +1,6 @@
 package com.example.emotionary
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -54,9 +55,7 @@ class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 인텐트에서 사용자 이름을 추출
-        val userName = intent.getStringExtra("userName")
-        val userProfile = intent.getStringExtra("userProfile")
+        val(nickname, profileImageUrl) = getLoginInfo(this)
         setContent {
             EmotionaryTheme {
                 // A surface container using the 'background' color from the theme
@@ -64,12 +63,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(userName,userProfile)
+                    MainScreen(nickname, profileImageUrl)
                     HiddenPageBtn()
                 }
             }
         }
     }
+}
+
+fun getLoginInfo(context: Context):Pair<String?, String?>{
+    val sharedPreference = context.getSharedPreferences("LoginInfo",Context.MODE_PRIVATE)
+    val nickname = sharedPreference.getString("nickname",null)
+    val profileImageUrl = sharedPreference.getString("profileImageUrl",null)
+    return Pair(nickname,profileImageUrl)
 }
 
 @Composable
@@ -249,7 +255,7 @@ fun ProgessBar() {
             )
         )
     }
-}
+} // 목표 진행도 바 관리 함수
 
 @Composable
 fun MainScreen(userName: String?, userProfile: String?) {
